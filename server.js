@@ -23,6 +23,7 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173", // local frontend (Vite default)
   "https://your-frontend.vercel.app" // replace with your real deployed frontend
+  "https://starflix-beta.vercel.app/"
 ];
 
 app.use(cors({

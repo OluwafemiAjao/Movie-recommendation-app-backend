@@ -39,12 +39,14 @@ const app = express();
 // }));
 
 
-app.use(
-  cors({
-    origin: ["http://localhost:5173", "https://starflix-beta.vercel.app/"], // ✅ update
-    credentials: true,
-  })
-);
+const corsOptions = {
+  origin: [
+    "http://localhost:5173",   // dev frontend
+    "https://starflix-beta.vercel.app/" // production frontend
+  ],
+  credentials: true
+};
+app.use(cors(corsOptions));
 
 
 app.use(express.json());

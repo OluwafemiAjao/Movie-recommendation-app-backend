@@ -17,36 +17,26 @@ connectDB();
 
 const app = express();
 
-// // Middleware
-// // app.use(cors());
-// // ✅ Deployment-safe CORS setup
-// const allowedOrigins = [
-//   "http://localhost:5173", // local frontend (Vite default)
-//   // "https://your-frontend.vercel.app" // replace with your real deployed frontend
-//   "https://starflix-beta.vercel.app/"
-// ];
+// Middleware
+// app.use(cors());
+// ✅ Deployment-safe CORS setup
+const allowedOrigins = [
+  "http://localhost:5173", // local frontend (Vite default)
+  // "https://your-frontend.vercel.app" // replace with your real deployed frontend
+  "https://starflix-beta.vercel.app/"
+];
 
-// app.use(cors({
-//   origin: function (origin, callback) {
-//     // allow requests with no origin (like Postman or curl)
-//     if (!origin || allowedOrigins.includes(origin)) {
-//       callback(null, true);
-//     } else {
-//       callback(new Error("Not allowed by CORS"));
-//     }
-//   },
-//   credentials: true
-// }));
-
-
-const corsOptions = {
-  origin: [
-    "http://localhost:5173",   // dev frontend
-    "https://starflix-beta.vercel.app/" // production frontend
-  ],
+app.use(cors({
+  origin: function (origin, callback) {
+    // allow requests with no origin (like Postman or curl)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true
-};
-app.use(cors(corsOptions));
+}));
 
 
 app.use(express.json());

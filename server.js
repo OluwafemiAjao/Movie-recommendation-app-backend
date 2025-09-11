@@ -41,7 +41,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://starflix.vercel.app"], // ✅ update
+    origin: ["http://localhost:5173", "https://starflix-beta.vercel.app/"], // ✅ update
     credentials: true,
   })
 );

@@ -185,7 +185,6 @@
 
 
 
-
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const { generateToken } = require("../utils/jwt");
@@ -193,21 +192,31 @@ const { generateToken } = require("../utils/jwt");
 // @desc Register a new user
 const register = async (req, res) => {
   try {
+    console.log("➡️ Register endpoint hit. Body:", req.body);
+
     const { name, email, password } = req.body;
 
-    // Check for existing user
+    console.log("🔍 Checking if user already exists:", email);
     const existing = await User.findOne({ email });
+
     if (existing) {
+      console.log("⚠️ User already exists:", email);
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // Hash password
+    console.log("🔑 Hashing password...");
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    console.log("📝 Creating new user document...");
     const user = new User({ name, email, password: hashedPassword });
+
+    console.log("💾 Saving new user...");
     await user.save();
 
-    // Return token + user info
+    console.log("✅ User saved. Generating token...");
     const token = generateToken(user._id);
+
+    console.log("🎉 Registration successful:", user._id.toString());
     res.status(201).json({
       message: "User registered successfully",
       token,
@@ -222,15 +231,30 @@ const register = async (req, res) => {
 // @desc Login user
 const login = async (req, res) => {
   try {
+    console.log("➡️ Login endpoint hit. Body:", req.body);
+
     const { email, password } = req.body;
 
+    console.log("🔍 Looking for user:", email);
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
+    if (!user) {
+      console.log("❌ No user found with email:", email);
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    console.log("🔑 Comparing password...");
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
+    if (!isMatch) {
+      console.log("❌ Password mismatch for:", email);
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    console.log("✅ Password match. Generating token...");
     const token = generateToken(user._id);
+
+    console.log("🎉 Login successful:", user._id.toString());
     res.json({
       token,
       user: { id: user._id, name: user.name, email: user.email }
@@ -244,22 +268,40 @@ const login = async (req, res) => {
 // @desc Change current user's password
 const changePassword = async (req, res) => {
   try {
+    console.log("➡️ Change password endpoint hit. User ID:", req.user?.id);
+
     const { currentPassword, newPassword } = req.body;
+    console.log("📩 Payload received:", { currentPassword, newPassword });
 
     if (!currentPassword || !newPassword) {
+      console.log("⚠️ Missing fields in change password request");
       return res.status(400).json({ message: "Current and new password are required." });
     }
 
+    console.log("🔍 Fetching user from DB...");
     const user = await User.findById(req.user.id);
-    if (!user) return res.status(404).json({ message: "User not found." });
 
+    if (!user) {
+      console.log("❌ User not found in DB:", req.user.id);
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    console.log("🔑 Verifying current password...");
     const isMatch = await bcrypt.compare(currentPassword, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Incorrect current password." });
 
+    if (!isMatch) {
+      console.log("❌ Incorrect current password for user:", req.user.id);
+      return res.status(400).json({ message: "Incorrect current password." });
+    }
+
+    console.log("🔑 Hashing new password...");
     const hashed = await bcrypt.hash(newPassword, 10);
+
+    console.log("💾 Updating password...");
     user.password = hashed;
     await user.save();
 
+    console.log("🎉 Password updated successfully for user:", req.user.id);
     res.status(200).json({ message: "Password updated successfully." });
   } catch (err) {
     console.error("❌ Error in changePassword:", err);
@@ -272,3 +314,4 @@ module.exports = {
   login,
   changePassword
 };
+
